@@ -164,3 +164,70 @@ Consider we have another table, `Course Enrollment`, where we track which course
 | **Composite Key**| A key that consists of two or more attributes to uniquely identify a record.                         | `{Student ID, Dept}`                                            |
 | **Unique Key**   | Ensures all values in a column/set of columns are unique but can contain a NULL value.                | `{Phone}`                                                       |
 
+
+---
+
+# Important Facts and Laws about Keys in DBMS
+
+Here are some key facts and laws related to various types of keys in DBMS, which are commonly asked in interviews and discussions:
+
+1. **Every Superkey is a Key, but not every Key is a Superkey**:
+   - A superkey is any set of attributes that can uniquely identify a record, but some may include extra, unnecessary attributes. A candidate key is a minimal version of a superkey.
+
+2. **Every Candidate Key is a Superkey, but not every Superkey is a Candidate Key**:
+   - Candidate keys are minimal superkeys, meaning no attribute can be removed while still uniquely identifying a record.
+
+3. **Every Primary Key is a Candidate Key, but not every Candidate Key is a Primary Key**:
+   - A primary key is a candidate key that has been selected to uniquely identify records in a table.
+
+4. **A Table can have only One Primary Key, but it can have Multiple Candidate Keys**:
+   - Although there can be many candidate keys in a table, only one is chosen as the primary key.
+
+5. **Every Primary Key is Unique, but not every Unique Key is a Primary Key**:
+   - A primary key must be unique and non-null, while a unique key can accept one null value and is not necessarily the primary identifier for a table.
+
+6. **Foreign Keys enforce Referential Integrity**:
+   - A foreign key links two tables together by referencing the primary key of another table, ensuring that the relationship between records remains consistent.
+
+7. **Composite Keys contain Multiple Attributes**:
+   - A composite key is made up of two or more columns that together uniquely identify a record. However, no single part of a composite key can uniquely identify the record on its own.
+
+8. **Null Values are not allowed in Primary Keys**:
+   - Primary keys cannot contain null values because they are used to uniquely identify records, and a null value would violate this requirement.
+
+9. **Unique Keys allow One NULL Value**:
+   - Unlike primary keys, unique keys can accept a single NULL value, but all other values must be unique.
+
+10. **A Foreign Key can Reference a Primary Key or a Unique Key**:
+    - Foreign keys usually reference primary keys in another table, but they can also reference a unique key.
+
+11. **Order of Columns or Rows does not Matter in Relational Databases**:
+    - In relational databases, the order of columns or rows in a table does not affect the data retrieval, as queries are based on key values rather than their position.
+
+12. **A Superkey can Contain Redundant Attributes**:
+    - A superkey may have more attributes than necessary to uniquely identify a row. Removing redundant attributes from a superkey results in a candidate key.
+
+13. **Multiple Foreign Keys in One Table**:
+    - A table can have more than one foreign key, linking it to multiple other tables, ensuring complex relationships are managed efficiently.
+
+14. **Alternate Keys are Candidate Keys**:
+    - An alternate key is simply a candidate key that was not selected as the primary key but can still be used to uniquely identify records.
+
+15. **Every Key in a Table Must Uniquely Identify a Record**:
+    - All types of keys (primary, candidate, alternate, composite, etc.) must serve the purpose of uniquely identifying records in the table.
+
+16. **A Candidate Key Cannot Contain NULL Values**:
+    - Similar to a primary key, candidate keys are minimal superkeys and must not contain NULL values because they are used to uniquely identify records.
+    
+17. **Foreign Keys Can Contain NULL Values**:
+    - A foreign key can have null values if it represents optional relationships, where a row in one table may not necessarily have a matching row in another table.
+
+18. **A Table Without a Candidate Key is not Well-Structured**:
+    - A table must have at least one candidate key (minimal superkey) for it to be considered well-structured in relational databases.
+
+19. **A Composite Key is formed when No Single Attribute Can Uniquely Identify the Record**:
+    - In scenarios where a single attribute cannot uniquely identify a record, multiple attributes are combined to form a composite key.
+
+20. **Primary Keys in Different Tables Can Share the Same Name**:
+    - While primary keys uniquely identify rows within a table, different tables can have primary keys with the same name, such as `ID`, as long as their context (i.e., table) differs.
+   
