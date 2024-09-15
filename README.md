@@ -425,9 +425,6 @@ A functional dependency is **non-trivial** when the dependent attribute is **not
 - **Name → DOB**  
   Here, knowing someone's `Name` can determine their `Date of Birth` (DOB), but `DOB` is not a part of `Name`, so it's non-trivial.
 
-#### Example:
-- **Emp_Id → Emp_Address**  
-  Since `Emp_Id` and `Emp_Address` have no common attributes, this is a complete non-trivial functional dependency.
 
 ## Understanding Through Example
 
