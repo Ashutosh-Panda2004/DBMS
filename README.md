@@ -231,3 +231,217 @@ Here are some key facts and laws related to various types of keys in DBMS, which
 20. **Primary Keys in Different Tables Can Share the Same Name**:
     - While primary keys uniquely identify rows within a table, different tables can have primary keys with the same name, such as `ID`, as long as their context (i.e., table) differs.
    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
+# NORMALISATION
+
+## Functional Dependency in DBMS
+
+Functional dependency (FD) is a relationship that exists between two attributes in a database table. It explains how one attribute (or a set of attributes) can determine the value of another attribute.
+
+## What is Functional Dependency?
+
+Functional dependency is often defined between a **primary key** and a **non-key attribute**. It means that if we know the value of one attribute (the determinant), we can determine the value of another attribute (the dependent).
+
+### Notation:
+
+- **X → Y**  
+  This means that attribute `X` determines the value of attribute `Y`. Here, `X` is the **determinant** (left side), and `Y` is the **dependent** (right side).
+
+### Example:
+
+Consider the following `Employee` table:
+
+| **Emp_Id** | **Emp_Name** | **Emp_Address**   |
+|------------|--------------|-------------------|
+| 101        | Alice        | 123 Elm St        |
+| 102        | Bob          | 456 Maple Ave     |
+| 103        | Charlie      | 789 Oak Blvd      |
+
+In this example, the `Emp_Id` uniquely identifies each employee's name (`Emp_Name`). So we can say:
+
+- **Emp_Id → Emp_Name**  
+  This means `Emp_Name` is **functionally dependent** on `Emp_Id` because for every `Emp_Id`, there is one specific `Emp_Name`.
+
+## Types of Functional Dependencies
+
+There are two main types of functional dependencies: **Trivial** and **Non-trivial** dependencies.
+
+### 1. Trivial Functional Dependency
+
+A functional dependency is considered **trivial** if the dependent (right side) is a subset of the determinant (left side). This includes cases where both sides are the same.
+
+#### Examples:
+- **A → A**  
+  This is trivial because `A` determines itself.
+  
+- Consider a table with two columns: `Employee_Id` and `Employee_Name`.  
+  `{Employee_Id, Employee_Name} → Employee_Id`  
+  This is a trivial functional dependency because `Employee_Id` is part of `{Employee_Id, Employee_Name}`.
+
+Trivial dependencies are simple cases where the dependent attribute is already part of the determinant, making them self-evident.
+
+### 2. Non-trivial Functional Dependency
+
+A functional dependency is **non-trivial** when the dependent attribute is **not** a subset of the determinant. In other words, the right side does not overlap with the left side.
+
+#### Examples:
+- **Emp_Id → Emp_Name**  
+  This is non-trivial because `Emp_Name` is not a part of `Emp_Id`.
+
+- **Name → DOB**  
+  Here, knowing someone's `Name` can determine their `Date of Birth` (DOB), but `DOB` is not a part of `Name`, so it's non-trivial.
+
+### Complete Non-trivial Functional Dependency:
+
+A **complete non-trivial functional dependency** occurs when the intersection of the determinant and the dependent is `NULL` (they share no common attributes).
+
+#### Example:
+- **Emp_Id → Emp_Address**  
+  Since `Emp_Id` and `Emp_Address` have no common attributes, this is a complete non-trivial functional dependency.
+
+## Understanding Through Example
+
+Let's consider another example to better understand functional dependency:
+
+| **Student_ID** | **Student_Name** | **Course** | **DOB**       |
+|----------------|------------------|------------|---------------|
+| 1              | Alice            | Math       | 01-Jan-2000   |
+| 2              | Bob              | Physics    | 15-Feb-1999   |
+| 3              | Charlie          | Chemistry  | 10-Mar-2001   |
+
+### Functional Dependencies:
+- **Student_ID → Student_Name**  
+  `Student_Name` is functionally dependent on `Student_ID`. Knowing the `Student_ID` uniquely identifies the student name.
+
+- **Student_Name → DOB**  
+  `DOB` is functionally dependent on `Student_Name`. Knowing the student's name gives us their date of birth.
+
+### Trivial Dependency:
+- **Student_ID → Student_ID**  
+  This is a trivial functional dependency because `Student_ID` determines itself.
+
+### Non-trivial Dependency:
+- **Student_ID → Course**  
+  This is a non-trivial dependency because `Course` is not part of `Student_ID`.
+
+## Summary of Functional Dependencies:
+
+| **Type**                      | **Definition**                                                                 | **Example**                                |
+|-------------------------------|---------------------------------------------------------------------------------|--------------------------------------------|
+| **Functional Dependency (FD)** | A relationship where one attribute determines another.                          | `Emp_Id → Emp_Name`                        |
+| **Trivial Dependency**         | The dependent is a subset of the determinant or both are the same.              | `Employee_Id → Employee_Id`                |
+| **Non-trivial Dependency**     | The dependent is not a subset of the determinant, and they are different.       | `Emp_Id → Emp_Name`                        |
+| **Complete Non-trivial**       | No intersection between the determinant and the dependent (completely separate).| `Emp_Id → Emp_Address`                     |
+
+## Key Points to Remember:
+- Functional dependencies are crucial for understanding how attributes are related in a table.
+- **Trivial dependencies** are obvious relationships (where an attribute determines itself).
+- **Non-trivial dependencies** show meaningful relationships between different attributes.
+- Proper understanding of functional dependencies helps with **database normalization**, which reduces redundancy and ensures data integrity.
+
