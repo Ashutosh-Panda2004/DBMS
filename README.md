@@ -425,10 +425,6 @@ A functional dependency is **non-trivial** when the dependent attribute is **not
 - **Name → DOB**  
   Here, knowing someone's `Name` can determine their `Date of Birth` (DOB), but `DOB` is not a part of `Name`, so it's non-trivial.
 
-### Complete Non-trivial Functional Dependency:
-
-A **complete non-trivial functional dependency** occurs when the intersection of the determinant and the dependent is `NULL` (they share no common attributes).
-
 #### Example:
 - **Emp_Id → Emp_Address**  
   Since `Emp_Id` and `Emp_Address` have no common attributes, this is a complete non-trivial functional dependency.
@@ -465,11 +461,5 @@ Let's consider another example to better understand functional dependency:
 | **Functional Dependency (FD)** | A relationship where one attribute determines another.                          | `Emp_Id → Emp_Name`                        |
 | **Trivial Dependency**         | The dependent is a subset of the determinant or both are the same.              | `Employee_Id → Employee_Id`                |
 | **Non-trivial Dependency**     | The dependent is not a subset of the determinant, and they are different.       | `Emp_Id → Emp_Name`                        |
-| **Complete Non-trivial**       | No intersection between the determinant and the dependent (completely separate).| `Emp_Id → Emp_Address`                     |
 
-## Key Points to Remember:
-- Functional dependencies are crucial for understanding how attributes are related in a table.
-- **Trivial dependencies** are obvious relationships (where an attribute determines itself).
-- **Non-trivial dependencies** show meaningful relationships between different attributes.
-- Proper understanding of functional dependencies helps with **database normalization**, which reduces redundancy and ensures data integrity.
 
