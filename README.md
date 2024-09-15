@@ -167,6 +167,34 @@ Consider we have another table, `Course Enrollment`, where we track which course
 
 ---
 
+### What is a Non-Key Attribute?
+
+A **non-key attribute** is any attribute (column) in a database table that is **not part of a key**. In simple terms, it means that the attribute does not participate in uniquely identifying a record in a table.
+
+#### Key vs Non-Key Attributes:
+- **Key Attribute**: These are attributes (like primary keys or candidate keys) that can uniquely identify a record in the table.
+- **Non-Key Attribute**: These are attributes that provide additional information about the record but **cannot** uniquely identify it by themselves.
+
+#### Example:
+
+Let’s consider a table with `Emp_Id` as the primary key:
+
+| **Emp_Id** | **Emp_Name**  | **Emp_Address**    | **Emp_Department** |
+|------------|---------------|--------------------|--------------------|
+| 101        | John Doe      | 123 Elm St         | HR                 |
+| 102        | Jane Smith    | 456 Oak St         | IT                 |
+
+- **Key Attribute**: `Emp_Id` (It can uniquely identify each record).
+- **Non-Key Attributes**: `Emp_Name`, `Emp_Address`, `Emp_Department` (These provide details about the employee but cannot uniquely identify them).
+
+In this table, `Emp_Name`, `Emp_Address`, and `Emp_Department` are **non-key attributes** because they are not involved in uniquely identifying a record in the table.
+
+### Why is it Important?
+
+Non-key attributes are typically functionally dependent on key attributes. This relationship forms the basis for concepts like functional dependencies and normalization in database design.
+
+---
+
 # Important Facts and Laws about Keys in DBMS
 
 Here are some key facts and laws related to various types of keys in DBMS, which are commonly asked in interviews and discussions:
