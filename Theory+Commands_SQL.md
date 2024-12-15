@@ -1606,3 +1606,1404 @@ In the `Employees` table:
 
 ---
 
+**Understanding Constraints and Operations in SQL (DDL and DML)**
+
+---
+
+## **1. Constraints in SQL (DDL)**
+Constraints are rules applied to table columns to ensure the accuracy, integrity, and reliability of the data.
+
+### **1.1 Primary Key**
+- **Definition:**
+  - Ensures **uniqueness** and **non-null** values for a column.
+  - A table can have only one primary key.
+
+**Example:**
+```sql
+CREATE TABLE Orders (
+    id INT PRIMARY KEY,          -- Primary Key ensures unique and non-null values
+    delivery_date DATE,
+    order_placed_date DATE
+);
+```
+**Table State After Creation:**
+| id | delivery_date | order_placed_date |
+|----|---------------|-------------------|
+|    |               |                   |
+
+**Insert Data:**
+```sql
+INSERT INTO Orders (id, delivery_date, order_placed_date) VALUES (1, '2024-06-01', '2024-05-28');
+INSERT INTO Orders (id, delivery_date, order_placed_date) VALUES (2, '2024-06-02', '2024-05-29');
+```
+**Table After Insertion:**
+| id | delivery_date | order_placed_date |
+|----|---------------|-------------------|
+| 1  | 2024-06-01    | 2024-05-28        |
+| 2  | 2024-06-02    | 2024-05-29        |
+
+---
+
+### **1.2 Foreign Key**
+- **Definition:**
+  - Establishes a **relationship** between two tables.
+  - Refers to the **Primary Key** of another table.
+  - A table can have multiple foreign keys.
+
+**Example:**
+```sql
+CREATE TABLE Customer (
+    id INT PRIMARY KEY,
+    name VARCHAR(50)
+);
+
+CREATE TABLE Orders (
+    id INT PRIMARY KEY,
+    delivery_date DATE,
+    cust_id INT,                                -- Foreign Key Column
+    FOREIGN KEY (cust_id) REFERENCES Customer(id)
+);
+```
+**Initial State of Tables:**
+**`Customer` Table:**
+| id | name       |
+|----|------------|
+|    |            |
+
+**`Orders` Table:**
+| id | delivery_date | cust_id |
+|----|---------------|---------|
+|    |               |         |
+
+**Insert Data:**
+```sql
+INSERT INTO Customer (id, name) VALUES (1, 'John Doe');
+INSERT INTO Orders (id, delivery_date, cust_id) VALUES (101, '2024-06-10', 1);
+```
+**Tables After Insertion:**
+**`Customer` Table:**
+| id | name       |
+|----|------------|
+| 1  | John Doe   |
+
+**`Orders` Table:**
+| id  | delivery_date | cust_id |
+|-----|---------------|---------|
+| 101 | 2024-06-10    | 1       |
+
+---
+
+### **1.3 UNIQUE Constraint**
+- **Definition:**
+  - Ensures that values in a column are **unique**.
+  - Unlike Primary Key, UNIQUE allows **NULL values**.
+  - A table can have multiple UNIQUE constraints.
+
+**Example:**
+```sql
+CREATE TABLE Customer (
+    id INT PRIMARY KEY,
+    email VARCHAR(1024) UNIQUE,  -- Unique constraint on email column
+    name VARCHAR(50)
+);
+```
+**Initial Table State:**
+| id | email        | name       |
+|----|--------------|------------|
+|    |              |            |
+
+**Insert Data:**
+```sql
+INSERT INTO Customer (id, email, name) VALUES (1, 'john@example.com', 'John Doe');
+INSERT INTO Customer (id, email, name) VALUES (2, 'jane@example.com', 'Jane Smith');
+```
+**Table After Insertion:**
+| id | email            | name       |
+|----|------------------|------------|
+| 1  | john@example.com | John Doe   |
+| 2  | jane@example.com | Jane Smith |
+
+**Insert Duplicate Email (Fails):**
+```sql
+INSERT INTO Customer (id, email, name) VALUES (3, 'john@example.com', 'Ali Khan');
+```
+**Error Output:**
+```
+Duplicate entry 'john@example.com' for key 'email'
+```
+
+---
+
+### **1.4 CHECK Constraint**
+- **Definition:**
+  - Ensures a condition holds true for column values.
+
+**Example:**
+```sql
+CREATE TABLE Customer (
+    id INT PRIMARY KEY,
+    age INT,
+    CONSTRAINT age_check CHECK (age > 12)  -- Ensures age is greater than 12
+);
+```
+**Insert Data (Valid):**
+```sql
+INSERT INTO Customer (id, age) VALUES (1, 15);
+```
+**Insert Data (Invalid):**
+```sql
+INSERT INTO Customer (id, age) VALUES (2, 10);
+```
+**Error Output:**
+```
+Check constraint 'age_check' is violated
+```
+**Table After Valid Insertion:**
+| id | age |
+|----|-----|
+| 1  | 15  |
+
+---
+
+### **1.5 DEFAULT Constraint**
+- **Definition:**
+  - Sets a **default value** for a column if no value is specified.
+
+**Example:**
+```sql
+CREATE TABLE Account (
+    id INT PRIMARY KEY,
+    saving_rate DOUBLE NOT NULL DEFAULT 4.25  -- Default value for saving_rate column
+);
+```
+**Insert Data Without `saving_rate`:**
+```sql
+INSERT INTO Account (id) VALUES (1);
+```
+**Table State After Insertion:**
+| id | saving_rate |
+|----|-------------|
+| 1  | 4.25        |
+
+---
+
+## **2. ALTER Operations in SQL (DDL)**
+
+### **2.1 ADD Column**
+```sql
+ALTER TABLE Customer
+ADD age INT NOT NULL;  -- Adds a new column 'age' to the Customer table
+```
+**Table Before Alteration:**
+| id | name       |
+|----|------------|
+| 1  | John Doe   |
+| 2  | Jane Smith |
+
+**Table After Alteration:**
+| id | name       | age |
+|----|------------|-----|
+| 1  | John Doe   |     |
+| 2  | Jane Smith |     |
+
+---
+
+### **2.3 DROP Column**
+```sql
+ALTER TABLE Customer
+DROP COLUMN age;  -- Deletes 'age' column from the Customer table
+```
+**Table Before Drop:**
+| id | name       | age |
+|----|------------|-----|
+| 1  | John Doe   | 20  |
+| 2  | Jane Smith | 21  |
+
+**Table After Drop:**
+| id | name       |
+|----|------------|
+| 1  | John Doe   |
+| 2  | Jane Smith |
+
+---
+
+**DELETE and REPLACE Operations in SQL**
+
+---
+
+## **1. DELETE Operation**
+The `DELETE` statement is used to remove rows from a table.
+
+### **1.1 DELETE Specific Rows**
+- **Definition:** Delete rows that match a specific condition using the `WHERE` clause.
+
+**Example:**
+```sql
+CREATE TABLE Customer (
+    id INT PRIMARY KEY,
+    name VARCHAR(50)
+);
+
+-- Insert Data
+INSERT INTO Customer (id, name) VALUES (1, 'John Doe');
+INSERT INTO Customer (id, name) VALUES (2, 'Jane Smith');
+INSERT INTO Customer (id, name) VALUES (3, 'Ali Khan');
+
+-- Delete a specific row where id = 2
+DELETE FROM Customer WHERE id = 2;
+```
+**Table Before DELETE:**
+| id | name       |
+|----|------------|
+| 1  | John Doe   |
+| 2  | Jane Smith |
+| 3  | Ali Khan   |
+
+**Table After DELETE:**
+| id | name       |
+|----|------------|
+| 1  | John Doe   |
+| 3  | Ali Khan   |
+
+---
+
+### **1.2 DELETE All Rows**
+- **Definition:** Remove all rows from the table. Use this **without a WHERE clause**.
+
+**Example:**
+```sql
+DELETE FROM Customer;
+```
+**Table Before DELETE:**
+| id | name       |
+|----|------------|
+| 1  | John Doe   |
+| 3  | Ali Khan   |
+
+**Table After DELETE:**
+| id | name       |
+|----|------------|
+|    |            |
+
+**Explanation:**
+- The table structure remains intact, but all rows are deleted.
+
+---
+
+### **1.3 DELETE with ON DELETE CASCADE**
+- **Definition:** Automatically delete rows in child tables when the parent table's row is deleted.
+- **Use Case:** Enforces referential integrity.
+
+**Example:**
+```sql
+-- Parent Table
+CREATE TABLE Customer (
+    id INT PRIMARY KEY,
+    name VARCHAR(50)
+);
+
+-- Child Table with ON DELETE CASCADE
+CREATE TABLE Orders (
+    order_id INT PRIMARY KEY,
+    cust_id INT,
+    FOREIGN KEY (cust_id) REFERENCES Customer(id) ON DELETE CASCADE
+);
+
+-- Insert Data into Parent Table
+INSERT INTO Customer (id, name) VALUES (1, 'John Doe');
+INSERT INTO Customer (id, name) VALUES (2, 'Jane Smith');
+
+-- Insert Data into Child Table
+INSERT INTO Orders (order_id, cust_id) VALUES (101, 1);
+INSERT INTO Orders (order_id, cust_id) VALUES (102, 2);
+
+-- Delete Parent Row (Customer)
+DELETE FROM Customer WHERE id = 1;
+```
+**Tables Before DELETE:**
+**Customer Table:**
+| id | name       |
+|----|------------|
+| 1  | John Doe   |
+| 2  | Jane Smith |
+
+**Orders Table:**
+| order_id | cust_id |
+|----------|---------|
+| 101      | 1       |
+| 102      | 2       |
+
+**Tables After DELETE:**
+**Customer Table:**
+| id | name       |
+|----|------------|
+| 2  | Jane Smith |
+
+**Orders Table:**
+| order_id | cust_id |
+|----------|---------|
+| 102      | 2       |
+
+**Explanation:**
+- Deleting `id = 1` in the `Customer` table also deletes the corresponding row in the `Orders` table due to **ON DELETE CASCADE**.
+
+---
+
+### **1.4 DELETE with ON DELETE SET NULL**
+- **Definition:** When a referenced parent row is deleted, the foreign key in the child table is set to `NULL`.
+
+**Example:**
+```sql
+-- Parent Table
+CREATE TABLE Customer (
+    id INT PRIMARY KEY,
+    name VARCHAR(50)
+);
+
+-- Child Table with ON DELETE SET NULL
+CREATE TABLE Orders (
+    order_id INT PRIMARY KEY,
+    cust_id INT,
+    FOREIGN KEY (cust_id) REFERENCES Customer(id) ON DELETE SET NULL
+);
+
+-- Insert Data
+INSERT INTO Customer (id, name) VALUES (1, 'John Doe');
+INSERT INTO Orders (order_id, cust_id) VALUES (101, 1);
+
+-- Delete Parent Row
+DELETE FROM Customer WHERE id = 1;
+```
+**Tables Before DELETE:**
+**Customer Table:**
+| id | name       |
+|----|------------|
+| 1  | John Doe   |
+
+**Orders Table:**
+| order_id | cust_id |
+|----------|---------|
+| 101      | 1       |
+
+**Tables After DELETE:**
+**Customer Table:**
+| id | name |
+|----|------|
+|    |      |
+
+**Orders Table:**
+| order_id | cust_id |
+|----------|---------|
+| 101      | NULL    |
+
+**Explanation:**
+- Deleting `id = 1` in the `Customer` table sets `cust_id` in the `Orders` table to `NULL`.
+
+---
+
+## **2. REPLACE Operation**
+The `REPLACE` statement is used to insert a row or replace an existing row with a **duplicate key**.
+
+### **2.1 REPLACE as INSERT**
+- **Definition:** If no duplicate key exists, a new row is inserted.
+
+**Example:**
+```sql
+CREATE TABLE Student (
+    id INT PRIMARY KEY,
+    class INT
+);
+
+-- Insert Data
+REPLACE INTO Student (id, class) VALUES (1, 5);
+REPLACE INTO Student (id, class) VALUES (2, 6);
+```
+**Table After REPLACE:**
+| id | class |
+|----|-------|
+| 1  | 5     |
+| 2  | 6     |
+
+---
+
+### **2.2 REPLACE to Update Existing Row**
+- **Definition:** If a row with a duplicate **Primary Key** exists, the old row is deleted, and the new row is inserted.
+
+**Example:**
+```sql
+-- Replace an existing row
+REPLACE INTO Student (id, class) VALUES (1, 7);
+```
+**Table Before REPLACE:**
+| id | class |
+|----|-------|
+| 1  | 5     |
+| 2  | 6     |
+
+**Table After REPLACE:**
+| id | class |
+|----|-------|
+| 1  | 7     |
+| 2  | 6     |
+
+**Explanation:**
+- Row with `id = 1` is replaced with a new value (`class = 7`).
+
+---
+
+### **2.3 REPLACE Using SET Syntax**
+- **Definition:** Update or insert rows using column assignments.
+
+**Example:**
+```sql
+REPLACE INTO Student SET id = 3, class = 8;
+```
+**Table After REPLACE:**
+| id | class |
+|----|-------|
+| 1  | 7     |
+| 2  | 6     |
+| 3  | 8     |
+
+**Explanation:**
+- Row with `id = 3` is added because no duplicate key existed.
+
+---
+
+## **Summary**
+- **DELETE:** Used to remove rows.
+  - `ON DELETE CASCADE`: Deletes related rows in child tables.
+  - `ON DELETE SET NULL`: Sets foreign keys in child tables to `NULL`.
+- **REPLACE:** Inserts or replaces rows based on duplicate keys.
+
+---
+
+**Detailed Explanation of All Types of Joins in SQL**
+
+---
+
+## **1. Introduction to Joins**
+- Joins are used to combine rows from two or more tables based on a related column.
+- In **RDBMS**, tables are related through **Foreign Keys (FK)** that reference the Primary Key of another table.
+
+### **Key Points:**
+1. Joins help retrieve meaningful data from multiple tables.
+2. SQL supports various types of joins for different use cases.
+
+**Tables Used for Examples:**
+**`Employees` Table:**
+| emp_id | name       | dept_id |
+|--------|------------|---------|
+| 1      | John       | 101     |
+| 2      | Jane       | 102     |
+| 3      | Ali        | NULL    |
+| 4      | Emma       | 104     |
+
+**`Departments` Table:**
+| dept_id | dept_name |
+|---------|-----------|
+| 101     | HR        |
+| 102     | IT        |
+| 103     | Finance   |
+
+---
+
+## **2. INNER JOIN**
+- **Definition:** Returns rows where there is a match in both tables.
+- Rows without matches are excluded.
+
+### **SQL Code:**
+```sql
+-- Inner Join between Employees and Departments
+SELECT e.name, d.dept_name
+FROM Employees AS e
+INNER JOIN Departments AS d
+ON e.dept_id = d.dept_id;
+```
+**Explanation:**
+1. `SELECT e.name, d.dept_name`: Select employee names and department names.
+2. `INNER JOIN`: Matches rows based on `dept_id`.
+3. `AS e, d`: Aliases for Employees and Departments tables.
+
+### **Resultant Table:**
+| name       | dept_name |
+|------------|-----------|
+| John       | HR        |
+| Jane       | IT        |
+
+
+---
+
+## **3. Aliases in MySQL (AS)**
+- **Definition:** Aliases are used to provide a temporary name to a column or table for the duration of a query. This helps make the query shorter, cleaner, and easier to understand.
+
+### **3.1 Aliasing Columns**
+**Syntax:**
+```sql
+SELECT col_name AS alias_name FROM table_name;
+```
+**Example:**
+```sql
+SELECT name AS Employee_Name, dept_id AS Department_ID
+FROM Employees;
+```
+**Output:**
+| Employee_Name | Department_ID |
+|---------------|---------------|
+| John          | 101           |
+| Jane          | 102           |
+| Ali           | NULL          |
+| Emma          | 104           |
+
+### **3.2 Aliasing Tables**
+**Syntax:**
+```sql
+SELECT col_name1, col_name2 FROM table_name AS alias_name;
+```
+**Example with INNER JOIN:**
+```sql
+SELECT e.name AS Employee_Name, d.dept_name AS Department_Name
+FROM Employees AS e
+INNER JOIN Departments AS d
+ON e.dept_id = d.dept_id;
+```
+**Explanation:**
+1. `AS e` provides a short alias for `Employees`.
+2. `AS d` provides a short alias for `Departments`.
+3. The result is cleaner and easier to write.
+
+**Resultant Table:**
+| Employee_Name | Department_Name |
+|---------------|-----------------|
+| John          | HR              |
+| Jane          | IT              |
+
+---
+
+## **4. INNER JOIN with Multiple Tables**
+- **Definition:** Combine data from more than two tables using INNER JOIN.
+
+**Example Tables:**
+**`Projects` Table:**
+| project_id | emp_id | project_name |
+|------------|--------|--------------|
+| P1         | 1      | Project A    |
+| P2         | 2      | Project B    |
+
+### **SQL Code:**
+```sql
+-- Inner Join with Employees, Departments, and Projects
+SELECT e.name AS Employee_Name, d.dept_name AS Department_Name, p.project_name AS Project
+FROM Employees AS e
+INNER JOIN Departments AS d ON e.dept_id = d.dept_id
+INNER JOIN Projects AS p ON e.emp_id = p.emp_id;
+```
+**Resultant Table:**
+| Employee_Name | Department_Name | Project    |
+|---------------|-----------------|------------|
+| John          | HR              | Project A  |
+| Jane          | IT              | Project B  |
+
+---
+
+## **3. INNER JOIN with Multiple Tables**
+- **Definition:** Combine data from more than two tables using INNER JOIN.
+
+**Example Tables:**
+**`Projects` Table:**
+| project_id | emp_id | project_name |
+|------------|--------|--------------|
+| P1         | 1      | Project A    |
+| P2         | 2      | Project B    |
+
+### **SQL Code:**
+```sql
+-- Inner Join with Employees, Departments, and Projects
+SELECT e.name, d.dept_name, p.project_name
+FROM Employees AS e
+INNER JOIN Departments AS d ON e.dept_id = d.dept_id
+INNER JOIN Projects AS p ON e.emp_id = p.emp_id;
+```
+**Resultant Table:**
+| name       | dept_name | project_name |
+|------------|-----------|--------------|
+| John       | HR        | Project A    |
+| Jane       | IT        | Project B    |
+
+---
+
+## **4. LEFT JOIN (LEFT OUTER JOIN)**
+- **Definition:** Returns all rows from the **left table** and matching rows from the right table.
+- If no match, NULL is returned for the right table's columns.
+
+### **SQL Code:**
+```sql
+SELECT e.name, d.dept_name
+FROM Employees AS e
+LEFT JOIN Departments AS d
+ON e.dept_id = d.dept_id;
+```
+### **Resultant Table:**
+| name       | dept_name |
+|------------|-----------|
+| John       | HR        |
+| Jane       | IT        |
+| Ali        | NULL      |
+| Emma       | NULL      |
+
+---
+
+## **5. RIGHT JOIN (RIGHT OUTER JOIN)**
+- **Definition:** Returns all rows from the **right table** and matching rows from the left table.
+- If no match, NULL is returned for the left table's columns.
+
+### **SQL Code:**
+```sql
+SELECT e.name, d.dept_name
+FROM Employees AS e
+RIGHT JOIN Departments AS d
+ON e.dept_id = d.dept_id;
+```
+### **Resultant Table:**
+| name       | dept_name |
+|------------|-----------|
+| John       | HR        |
+| Jane       | IT        |
+| NULL       | Finance   |
+
+---
+
+## **6. FULL OUTER JOIN**
+- **Definition:** Returns all rows from both tables, with NULL for unmatched rows.
+
+### **Emulated in MySQL (UNION):**
+```sql
+SELECT e.name, d.dept_name
+FROM Employees AS e
+LEFT JOIN Departments AS d ON e.dept_id = d.dept_id
+
+UNION
+
+SELECT e.name, d.dept_name
+FROM Employees AS e
+RIGHT JOIN Departments AS d ON e.dept_id = d.dept_id;
+```
+### **Resultant Table:**
+| name       | dept_name |
+|------------|-----------|
+| John       | HR        |
+| Jane       | IT        |
+| Ali        | NULL      |
+| Emma       | NULL      |
+| NULL       | Finance   |
+
+---
+
+## **7. CROSS JOIN**
+- **Definition:** Returns the Cartesian product of two tables.
+- Combines every row from the first table with every row from the second table.
+
+### **SQL Code:**
+```sql
+SELECT e.name, d.dept_name
+FROM Employees AS e
+CROSS JOIN Departments AS d;
+```
+### **Resultant Table:**
+| name       | dept_name |
+|------------|-----------|
+| John       | HR        |
+| John       | IT        |
+| John       | Finance   |
+| Jane       | HR        |
+| Jane       | IT        |
+| Jane       | Finance   |
+| Ali        | HR        |
+| Ali        | IT        |
+| Ali        | Finance   |
+| Emma       | HR        |
+| Emma       | IT        |
+| Emma       | Finance   |
+
+---
+
+## **8. SELF JOIN**
+- **Definition:** A table joins itself.
+- Useful for comparing rows within the same table.
+
+### **SQL Code:**
+```sql
+SELECT a.name AS Employee1, b.name AS Employee2
+FROM Employees AS a
+INNER JOIN Employees AS b
+ON a.emp_id <> b.emp_id;
+```
+### **Resultant Table:**
+| Employee1  | Employee2  |
+|------------|------------|
+| John       | Jane       |
+| John       | Ali        |
+| Jane       | John       |
+| Jane       | Ali        |
+| Ali        | John       |
+| Ali        | Jane       |
+
+---
+
+## **9. JOIN Without Keywords**
+- **Definition:** Joins can be performed without the `JOIN` keyword by listing multiple tables in the `FROM` clause and using conditions in the `WHERE` clause.
+
+### **SQL Code:**
+```sql
+SELECT e.name, d.dept_name
+FROM Employees e, Departments d
+WHERE e.dept_id = d.dept_id;
+```
+### **Resultant Table:**
+| name       | dept_name |
+|------------|-----------|
+| John       | HR        |
+| Jane       | IT        |
+
+---
+
+## **10. Summary of Joins**
+| **Join Type**       | **Description**                                                 |
+|---------------------|---------------------------------------------------------------|
+| **INNER JOIN**      | Matches rows from both tables.                                |
+| **LEFT JOIN**       | All rows from the left table, unmatched rows in right as NULL.|
+| **RIGHT JOIN**      | All rows from the right table, unmatched rows in left as NULL.|
+| **FULL OUTER JOIN** | Combines results of LEFT and RIGHT JOIN (NULLs for no match). |
+| **CROSS JOIN**      | Cartesian product of rows.                                    |
+| **SELF JOIN**       | A table joins itself.                                         |
+
+---
+
+**Detailed Explanation of Set Operations in SQL**
+
+---
+
+## **1. Introduction to Set Operations**
+- **Definition:** Set operations are used to combine the results of two or more SELECT queries.
+- They are used when data from multiple queries needs to be combined into a single result set.
+- **Key Rule:** The **number of columns** and the **datatypes** of corresponding columns must be the same for all SELECT statements.
+
+**Common Set Operations:**
+1. **UNION**
+2. **INTERSECT**
+3. **MINUS** (also known as EXCEPT in some databases)
+4. **UNION ALL**
+
+**Note:** MySQL does not support INTERSECT and MINUS directly but they can be emulated using JOINs or subqueries.
+
+---
+
+## **2. Comparison of Joins vs. Set Operations**
+| **JOIN**                                 | **SET Operations**                         |
+|------------------------------------------|-------------------------------------------|
+| Combines multiple tables based on matching conditions. | Combines results of two or more SELECT statements. |
+| Column-wise combination.                 | Row-wise combination.                     |
+| Data types of two tables can be different. | Data types of corresponding columns must match. |
+| Can generate both distinct or duplicate rows. | Always generates distinct rows (except UNION ALL). |
+| Number of columns may or may not be the same. | Number of columns must be the same.      |
+| Combines results horizontally.           | Combines results vertically.              |
+
+---
+
+## **3. UNION**
+- **Definition:** Combines the results of two or more SELECT queries and removes duplicate rows.
+- **Key Rule:** The columns in all SELECT statements must have the **same number** and **datatype**.
+
+### **SQL Syntax:**
+```sql
+SELECT column_list FROM table1
+UNION
+SELECT column_list FROM table2;
+```
+
+### **Example:**
+Consider two tables `Table1` and `Table2`:
+
+**`Table1`**
+| id | name       |
+|----|------------|
+| 1  | John       |
+| 2  | Jane       |
+
+**`Table2`**
+| id | name       |
+|----|------------|
+| 2  | Jane       |
+| 3  | Ali        |
+
+**Query:**
+```sql
+SELECT id, name FROM Table1
+UNION
+SELECT id, name FROM Table2;
+```
+**Output:**
+| id | name       |
+|----|------------|
+| 1  | John       |
+| 2  | Jane       |
+| 3  | Ali        |
+
+### **Explanation:**
+1. Duplicate row (2, 'Jane') is removed.
+2. Result combines rows vertically.
+
+---
+
+## **4. UNION ALL**
+- **Definition:** Combines the results of two or more SELECT queries **without removing duplicates**.
+- **Key Rule:** Same number of columns and matching datatypes.
+
+### **SQL Syntax:**
+```sql
+SELECT column_list FROM table1
+UNION ALL
+SELECT column_list FROM table2;
+```
+
+### **Example:**
+**Query:**
+```sql
+SELECT id, name FROM Table1
+UNION ALL
+SELECT id, name FROM Table2;
+```
+**Output:**
+| id | name       |
+|----|------------|
+| 1  | John       |
+| 2  | Jane       |
+| 2  | Jane       |
+| 3  | Ali        |
+
+### **Explanation:**
+1. Duplicate rows are included.
+2. UNION ALL is faster because it does not check for duplicates.
+
+---
+
+## **5. INTERSECT (Emulated in MySQL)**
+- **Definition:** Returns only the rows that are common to the results of both SELECT queries.
+- **Note:** MySQL does not support INTERSECT directly, but it can be emulated using `INNER JOIN` or subqueries.
+
+### **SQL Emulation Syntax:**
+```sql
+SELECT DISTINCT t1.id, t1.name
+FROM Table1 AS t1
+INNER JOIN Table2 AS t2 ON t1.id = t2.id AND t1.name = t2.name;
+```
+
+### **Example:**
+**Query:**
+```sql
+SELECT id, name FROM Table1
+INTERSECT
+SELECT id, name FROM Table2;
+```
+**Output (Emulated):**
+| id | name       |
+|----|------------|
+| 2  | Jane       |
+
+### **Explanation:**
+1. Only rows present in both `Table1` and `Table2` are returned.
+2. Emulated using INNER JOIN on matching columns.
+
+---
+
+## **6. MINUS (Emulated in MySQL)**
+- **Definition:** Returns rows from the first SELECT query that do not appear in the second SELECT query.
+- **Note:** MySQL does not support MINUS directly, but it can be emulated using `LEFT JOIN` and filtering for NULLs.
+
+### **SQL Emulation Syntax:**
+```sql
+SELECT t1.id, t1.name
+FROM Table1 AS t1
+LEFT JOIN Table2 AS t2
+ON t1.id = t2.id AND t1.name = t2.name
+WHERE t2.id IS NULL;
+```
+
+### **Example:**
+**Query:**
+```sql
+SELECT id, name FROM Table1
+MINUS
+SELECT id, name FROM Table2;
+```
+**Output (Emulated):**
+| id | name       |
+|----|------------|
+| 1  | John       |
+
+### **Explanation:**
+1. Rows in `Table1` that do not exist in `Table2` are returned.
+2. Emulated using LEFT JOIN and checking for NULL values in `Table2`.
+
+---
+
+## **7. Summary Table of Set Operations**
+| **Set Operation** | **Definition**                                      | **Duplicates** |
+|--------------------|----------------------------------------------------|----------------|
+| **UNION**         | Combines results of two SELECT queries.            | Removed        |
+| **UNION ALL**     | Combines results of two SELECT queries.            | Included       |
+| **INTERSECT**     | Returns rows common to both SELECT queries.        | Removed        |
+| **MINUS**         | Returns rows from the first query not in the second.| Removed        |
+
+---
+
+## **8. Key Takeaways**
+1. Set operations are used to **combine query results** vertically.
+2. **UNION** removes duplicates, while **UNION ALL** includes them.
+3. **INTERSECT** and **MINUS** are not natively supported in MySQL but can be emulated using JOINs.
+4. All SELECT statements must have the **same number of columns** with matching **datatypes**.
+
+---
+
+**Detailed Explanation of Subqueries in SQL**
+
+---
+
+## **1. Introduction to Subqueries**
+- **Definition:** A subquery is a query nested inside another SQL query.
+- The result of the subquery is used by the outer query to perform further operations.
+- Subqueries can be placed inside **SELECT**, **FROM**, or **WHERE** clauses.
+- **Key Points:**
+  - Subqueries are also called **nested queries**.
+  - They can return a single value, a single column, or multiple rows.
+  - Subqueries are evaluated **before** the outer query.
+
+---
+
+## **2. Features of Subqueries**
+1. Subqueries can replace joins in some cases.
+2. They are often used to break complex queries into simpler ones.
+3. Subqueries can return:
+   - Single values (Scalar Subqueries).
+   - Multiple values (Column Subqueries).
+   - Multiple rows and columns (Table Subqueries).
+4. Subqueries exist mainly in 3 clauses:
+   - Inside a **WHERE** clause.
+   - Inside a **FROM** clause.
+   - Inside a **SELECT** clause.
+
+---
+
+## **3. Subquery in WHERE Clause**
+- **Definition:** A subquery used in the WHERE clause filters rows based on the result of the subquery.
+
+### **SQL Syntax:**
+```sql
+SELECT column_list
+FROM table1
+WHERE column_name OPERATOR (SELECT column_list FROM table2 WHERE condition);
+```
+
+### **Example:**
+**Tables Used:**
+**`Employees` Table:**
+| emp_id | name       | salary |
+|--------|------------|--------|
+| 1      | John       | 6000   |
+| 2      | Jane       | 7000   |
+| 3      | Ali        | 5000   |
+
+**`Departments` Table:**
+| dept_id | emp_id | dept_name |
+|---------|--------|-----------|
+| 101     | 1      | HR        |
+| 102     | 2      | IT        |
+| 103     | 4      | Finance   |
+
+**Query:**
+```sql
+SELECT name, salary
+FROM Employees
+WHERE emp_id IN (SELECT emp_id FROM Departments WHERE dept_name = 'IT');
+```
+
+**Explanation:**
+1. The inner query retrieves `emp_id` where `dept_name = 'IT'`.
+2. The outer query selects names and salaries for those `emp_id` values.
+
+**Output:**
+| name | salary |
+|------|--------|
+| Jane | 7000   |
+
+---
+
+## **4. Subquery in FROM Clause (Derived Table)**
+- **Definition:** A subquery in the FROM clause creates a temporary table (also called a derived table).
+- This derived table is used by the outer query.
+
+### **SQL Syntax:**
+```sql
+SELECT column_list
+FROM (SELECT column_list FROM table_name WHERE condition) AS new_table_name;
+```
+
+### **Example:**
+**Query:**
+```sql
+SELECT avg_salary
+FROM (SELECT AVG(salary) AS avg_salary FROM Employees) AS Temp;
+```
+
+**Explanation:**
+1. The inner query calculates the average salary and names it `avg_salary`.
+2. The outer query fetches this value.
+
+**Output:**
+| avg_salary |
+|------------|
+| 6000       |
+
+---
+
+## **5. Subquery in SELECT Clause**
+- **Definition:** A subquery in the SELECT clause calculates a value that is displayed alongside other columns.
+
+### **SQL Syntax:**
+```sql
+SELECT column1, (SELECT column2 FROM table2 WHERE condition) AS alias_name
+FROM table1;
+```
+
+### **Example:**
+**Query:**
+```sql
+SELECT name, (SELECT COUNT(*) FROM Departments WHERE Departments.emp_id = Employees.emp_id) AS DeptCount
+FROM Employees;
+```
+
+**Explanation:**
+1. For each row in `Employees`, the subquery counts the matching rows in `Departments`.
+2. The result is displayed as `DeptCount`.
+
+**Output:**
+| name | DeptCount |
+|------|-----------|
+| John | 1         |
+| Jane | 1         |
+| Ali  | 0         |
+
+---
+
+## **6. Types of Subqueries**
+1. **Scalar Subquery**
+   - Returns a single value.
+   - Used in SELECT, WHERE, or HAVING clauses.
+   - Example:
+     ```sql
+     SELECT name, (SELECT MAX(salary) FROM Employees) AS max_salary FROM Employees;
+     ```
+2. **Single-Row Subquery**
+   - Returns one row with one or more columns.
+   - Used with comparison operators.
+   - Example:
+     ```sql
+     SELECT name, salary FROM Employees WHERE salary = (SELECT MIN(salary) FROM Employees);
+     ```
+3. **Multi-Row Subquery**
+   - Returns multiple rows.
+   - Used with `IN`, `ANY`, or `ALL` operators.
+   - Example:
+     ```sql
+     SELECT name FROM Employees WHERE emp_id IN (SELECT emp_id FROM Departments);
+     ```
+4. **Correlated Subquery**
+   - A subquery that references a column from the outer query.
+   - Executed once for each row processed by the outer query.
+   - Example:
+     ```sql
+     SELECT name FROM Employees e WHERE salary > (SELECT AVG(salary) FROM Employees WHERE e.emp_id = emp_id);
+     ```
+
+---
+
+## **7. Correlated Subqueries**
+- **Definition:** The inner query depends on the outer query for its values.
+- The inner query runs once for each row of the outer query.
+
+### **Example:**
+**Query:**
+```sql
+SELECT name, salary
+FROM Employees e
+WHERE salary > (SELECT AVG(salary) FROM Employees WHERE dept_id = e.dept_id);
+```
+
+**Explanation:**
+1. The inner query calculates the average salary for each department.
+2. The outer query checks if the salary of an employee is greater than the average.
+
+---
+
+## **8. Subqueries vs. Joins**
+| **Joins**                                | **Subqueries**                            |
+|------------------------------------------|-------------------------------------------|
+| Faster.                                  | Slower.                                   |
+| Maximizes calculation burden on DBMS.    | Keeps responsibility on the user.         |
+| Complex and harder to implement.         | Simpler to write and understand.          |
+| Combines results horizontally.           | Combines results vertically or inline.    |
+| Best for optimizing performance.         | Easier for breaking complex logic.        |
+
+---
+
+## **9. Key Takeaways**
+1. Subqueries are queries nested inside another query.
+2. Subqueries can appear in SELECT, FROM, and WHERE clauses.
+3. Use **correlated subqueries** when the inner query depends on the outer query.
+4. Subqueries can be replaced with **joins** for better performance in many cases.
+5. Subqueries are an excellent tool for breaking down complex problems into smaller, manageable parts.
+
+**Detailed Explanation of MySQL Views**
+
+---
+
+## **1. Introduction to MySQL Views**
+- **Definition:** A **view** is a virtual table that does not store data but displays data retrieved from one or more base tables.
+- It contains rows and columns similar to a real table but does not store physical data.
+- Views simplify complex queries and improve readability.
+
+**Key Points:**
+1. Views are created based on SELECT queries.
+2. They can be used to encapsulate logic and restrict data access.
+3. Changes made to the base table are reflected in the view automatically.
+
+---
+
+## **2. Features of MySQL Views**
+1. **Virtual Tables:** Views do not hold data; they display data from base tables.
+2. **Simplification:** Complex SQL queries can be simplified and reused as views.
+3. **Security:** Views can be used to display specific data without exposing the full table.
+4. **Dynamic:** Changes in the underlying table reflect automatically in the view.
+5. **Read-only vs. Updatable Views:**
+   - **Read-only Views:** Cannot modify data through the view.
+   - **Updatable Views:** Allow changes to data that propagate to the base table.
+
+---
+
+## **3. Creating a View**
+- Use the **CREATE VIEW** statement to create a view.
+- A view is created based on a SELECT query.
+
+### **SQL Syntax:**
+```sql
+CREATE VIEW view_name AS
+SELECT column_list FROM table_name WHERE condition;
+```
+
+### **Example:**
+**Base Table: `Employees`**
+| emp_id | name       | dept_id | salary |
+|--------|------------|---------|--------|
+| 1      | John       | 101     | 6000   |
+| 2      | Jane       | 102     | 7000   |
+| 3      | Ali        | NULL    | 5000   |
+| 4      | Emma       | 101     | 8000   |
+
+**Query:**
+```sql
+CREATE VIEW HR_Employees AS
+SELECT emp_id, name, salary
+FROM Employees
+WHERE dept_id = 101;
+```
+
+### **Explanation:**
+1. The view `HR_Employees` is created to display employees in department 101.
+2. It only includes `emp_id`, `name`, and `salary` columns.
+
+**Querying the View:**
+```sql
+SELECT * FROM HR_Employees;
+```
+**Output:**
+| emp_id | name  | salary |
+|--------|-------|--------|
+| 1      | John  | 6000   |
+| 4      | Emma  | 8000   |
+
+---
+
+## **4. Altering a View**
+- Use the **ALTER VIEW** statement to modify an existing view.
+
+### **SQL Syntax:**
+```sql
+ALTER VIEW view_name AS
+SELECT column_list FROM table_name WHERE condition;
+```
+
+### **Example:**
+```sql
+ALTER VIEW HR_Employees AS
+SELECT emp_id, name, salary
+FROM Employees
+WHERE salary > 6000;
+```
+**Explanation:**
+1. The `HR_Employees` view is altered to include employees with `salary > 6000`.
+2. It modifies the previous view without dropping it.
+
+**Querying the View:**
+```sql
+SELECT * FROM HR_Employees;
+```
+**Output:**
+| emp_id | name  | salary |
+|--------|-------|--------|
+| 2      | Jane  | 7000   |
+| 4      | Emma  | 8000   |
+
+---
+
+## **5. Dropping a View**
+- Use the **DROP VIEW** statement to delete an existing view.
+
+### **SQL Syntax:**
+```sql
+DROP VIEW IF EXISTS view_name;
+```
+
+### **Example:**
+```sql
+DROP VIEW IF EXISTS HR_Employees;
+```
+**Explanation:**
+1. The `DROP VIEW` command deletes the `HR_Employees` view if it exists.
+2. The `IF EXISTS` clause prevents errors if the view does not exist.
+
+---
+
+## **6. Creating Views with Joins**
+- Views can be created using **JOINs** to combine data from multiple tables.
+
+### **Example:**
+**Base Tables:**
+**`Employees` Table**
+| emp_id | name       | dept_id |
+|--------|------------|---------|
+| 1      | John       | 101     |
+| 2      | Jane       | 102     |
+| 3      | Ali        | NULL    |
+
+**`Departments` Table**
+| dept_id | dept_name |
+|---------|-----------|
+| 101     | HR        |
+| 102     | IT        |
+
+**Query:**
+```sql
+CREATE VIEW Employee_Department AS
+SELECT e.emp_id, e.name, d.dept_name
+FROM Employees AS e
+JOIN Departments AS d ON e.dept_id = d.dept_id;
+```
+
+**Explanation:**
+1. The `Employee_Department` view combines data from `Employees` and `Departments` tables.
+2. `JOIN` is used to match `dept_id` between the two tables.
+
+**Querying the View:**
+```sql
+SELECT * FROM Employee_Department;
+```
+**Output:**
+| emp_id | name | dept_name |
+|--------|------|-----------|
+| 1      | John | HR        |
+| 2      | Jane | IT        |
+
+---
+
+## **7. Importing and Exporting Table Schema**
+- MySQL allows importing and exporting table schemas in `.csv` or `.json` formats for easy portability.
+- Views can be exported and imported along with base tables for database migrations.
+
+---
+
+## **8. Key Takeaways**
+1. **Views** are virtual tables that simplify complex queries and secure access to sensitive data.
+2. **CREATE VIEW** is used to define a view based on SELECT queries.
+3. **ALTER VIEW** is used to modify an existing view.
+4. **DROP VIEW** deletes a view without affecting the base table.
+5. Views can be created using JOINs to combine data from multiple tables.
+6. Views automatically reflect changes in the base table.
+
+---
+
+This document explains **MySQL Views** with examples for creating, altering, and dropping views, including usage with **JOINs** and table outputs for clarity.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
