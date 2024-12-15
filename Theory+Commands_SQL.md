@@ -1432,15 +1432,30 @@ Consider a `Students` table in a school database:
 
 - Here, `StudentID` is the **Primary Key** because it uniquely identifies each student. No two students can have the same `StudentID`, and it cannot be left blank.
 
-**SQL Example:**
+**Two Ways to Declare a Primary Key:**
+
+**Way 1: Inline Primary Key Declaration**
 ```sql
 CREATE TABLE Students (
-    StudentID INT PRIMARY KEY,   -- Primary Key
+    StudentID INT PRIMARY KEY,   -- Primary Key declared inline
     Name VARCHAR(50),
     Age INT,
     Class INT
 );
 ```
+
+**Way 2: Table-Level Primary Key Declaration**
+```sql
+CREATE TABLE Students (
+    StudentID INT,       -- Column defined without primary key constraint initially
+    Name VARCHAR(50),
+    Age INT,
+    Class INT,
+    PRIMARY KEY (StudentID)  -- Table-level primary key declaration
+);
+```
+
+Both methods produce the same result; you can choose either approach.
 
 ---
 
