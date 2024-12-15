@@ -1414,4 +1414,180 @@ This concludes the complete set of SQL operations for DRL commands with practica
 
 ---
 
+**Understanding Primary Key, Foreign Key, Candidate Key, and Other Important Keys**
+
+---
+
+### **1. Primary Key**
+- **Definition:** A primary key is a column (or set of columns) that uniquely identifies each row in a table. It ensures that no two rows have the same value for the primary key column, and it cannot contain NULL values.
+
+**Real-Life Example:**
+Consider a `Students` table in a school database:
+
+| StudentID | Name       | Age | Class |
+|-----------|------------|-----|-------|
+| 1         | John Doe   | 14  | 9     |
+| 2         | Jane Smith | 13  | 8     |
+| 3         | Ali Khan   | 15  | 10    |
+
+- Here, `StudentID` is the **Primary Key** because it uniquely identifies each student. No two students can have the same `StudentID`, and it cannot be left blank.
+
+**SQL Example:**
+```sql
+CREATE TABLE Students (
+    StudentID INT PRIMARY KEY,   -- Primary Key
+    Name VARCHAR(50),
+    Age INT,
+    Class INT
+);
+```
+
+---
+
+### **2. Foreign Key**
+- **Definition:** A foreign key is a column (or set of columns) in one table that establishes a relationship with the primary key of another table. It allows linking the data between tables.
+
+**Real-Life Example:**
+Consider two tables in a school database:
+
+**`Students` Table:**
+| StudentID | Name       | Age | Class |
+|-----------|------------|-----|-------|
+| 1         | John Doe   | 14  | 9     |
+| 2         | Jane Smith | 13  | 8     |
+| 3         | Ali Khan   | 15  | 10    |
+
+**`Marks` Table:**
+| MarksID | StudentID | Subject  | Marks |
+|---------|-----------|----------|-------|
+| 101     | 1         | Math     | 85    |
+| 102     | 2         | Science  | 90    |
+| 103     | 3         | English  | 88    |
+
+- Here, `StudentID` in the `Marks` table is the **Foreign Key** because it refers to the `StudentID` primary key in the `Students` table.
+- This links each mark entry to a specific student.
+
+**SQL Example:**
+```sql
+CREATE TABLE Marks (
+    MarksID INT PRIMARY KEY,
+    StudentID INT,
+    Subject VARCHAR(50),
+    Marks INT,
+    FOREIGN KEY (StudentID) REFERENCES Students(StudentID)
+);
+```
+
+---
+
+### **3. Candidate Key**
+- **Definition:** A candidate key is any column (or combination of columns) that can uniquely identify rows in a table. From these candidate keys, one is chosen as the primary key.
+
+**Real-Life Example:**
+Consider an `Employees` table in a company database:
+
+| EmployeeID | SSN         | Name       | Department |
+|------------|-------------|------------|------------|
+| 101        | 123-45-6789 | John Smith | HR         |
+| 102        | 987-65-4321 | Jane Doe   | IT         |
+| 103        | 456-78-9012 | Ali Khan   | Finance    |
+
+- Both `EmployeeID` and `SSN` are **Candidate Keys** because both can uniquely identify employees.
+- Typically, one of these is chosen as the **Primary Key** (e.g., `EmployeeID`).
+
+**SQL Example:**
+```sql
+CREATE TABLE Employees (
+    EmployeeID INT,        -- Candidate Key 1
+    SSN VARCHAR(11),       -- Candidate Key 2
+    Name VARCHAR(50),
+    Department VARCHAR(50),
+    PRIMARY KEY (EmployeeID)
+);
+```
+
+---
+
+### **4. Alternate Key**
+- **Definition:** An alternate key is any candidate key that is not chosen as the primary key.
+
+**Real-Life Example:**
+From the `Employees` table above, if `EmployeeID` is the primary key, then `SSN` becomes the **Alternate Key**.
+
+**SQL Example:**
+```sql
+CREATE TABLE Employees (
+    EmployeeID INT PRIMARY KEY,  -- Chosen Primary Key
+    SSN VARCHAR(11) UNIQUE,      -- Alternate Key
+    Name VARCHAR(50),
+    Department VARCHAR(50)
+);
+```
+
+---
+
+### **5. Composite Key**
+- **Definition:** A composite key is a key that consists of two or more columns to uniquely identify rows in a table.
+
+**Real-Life Example:**
+Consider a `Course_Enrollment` table in a university database:
+
+| StudentID | CourseID | EnrollmentDate |
+|-----------|----------|----------------|
+| 1         | C101     | 2024-01-15     |
+| 2         | C102     | 2024-01-16     |
+| 1         | C102     | 2024-01-17     |
+
+- Here, `StudentID` and `CourseID` together form the **Composite Key** because a student can enroll in multiple courses, but the combination of `StudentID` and `CourseID` is unique.
+
+**SQL Example:**
+```sql
+CREATE TABLE Course_Enrollment (
+    StudentID INT,
+    CourseID VARCHAR(10),
+    EnrollmentDate DATE,
+    PRIMARY KEY (StudentID, CourseID)  -- Composite Key
+);
+```
+
+---
+
+### **6. Super Key**
+- **Definition:** A super key is a set of one or more columns that can uniquely identify rows in a table. A super key includes the primary key but can also include additional columns.
+
+**Real-Life Example:**
+In the `Employees` table:
+| EmployeeID | SSN         | Name       | Department |
+|------------|-------------|------------|------------|
+
+- `EmployeeID` alone is a super key.
+- `(EmployeeID, Name)` is also a super key because it still uniquely identifies rows, even with an extra column.
+
+**Note:** Super keys are not minimal. Candidate keys are derived by removing unnecessary columns from super keys.
+
+**SQL Example:**
+- Super keys are not directly implemented but exist conceptually during table design.
+
+---
+
+### **Summary of Keys in Databases**
+
+| **Key Type**       | **Definition**                                                    | **Example**                       |
+|---------------------|------------------------------------------------------------------|-----------------------------------|
+| **Primary Key**     | Uniquely identifies rows in a table, cannot be NULL.             | `StudentID` in `Students` table.  |
+| **Foreign Key**     | Establishes relationships between tables.                       | `StudentID` in `Marks` table.     |
+| **Candidate Key**   | Columns that can uniquely identify rows (potential primary key).| `EmployeeID` and `SSN`.           |
+| **Alternate Key**   | A candidate key not chosen as the primary key.                  | `SSN` in `Employees`.             |
+| **Composite Key**   | A combination of columns that uniquely identifies rows.         | `(StudentID, CourseID)` in `Course_Enrollment`. |
+| **Super Key**       | A set of columns that uniquely identify rows (not minimal).     | `(EmployeeID, Name)`.             |
+
+---
+
+### **Why Keys are Important in Databases?**
+1. **Uniqueness:** Ensure that each row is uniquely identifiable.
+2. **Data Integrity:** Maintain consistent and accurate data across tables.
+3. **Relationships:** Enable linking of data between multiple tables.
+4. **Efficiency:** Improve query performance with indexing on keys.
+
+---
 
