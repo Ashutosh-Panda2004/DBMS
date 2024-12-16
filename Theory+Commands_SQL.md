@@ -3089,69 +3089,445 @@ SELECT * FROM Employee_Department;
 
 ---
 
-This document explains **MySQL Views** with examples for creating, altering, and dropping views, including usage with **JOINs** and table outputs for clarity.
+**Detailed Notes on Normalization**
 
+---
 
+## **1. What is Normalization?**
 
+- **Definition:** Normalization is a **database optimization technique** that minimizes redundancy and eliminates undesirable anomalies in a database.
+- It organizes data efficiently by breaking large tables into smaller, well-structured tables.
+- **Goal:** To make the database consistent, organized, and free of anomalies.
+- **Simple Example:** If a table has repeated values for student data, normalization splits this table into smaller tables to store unique values like `Students` and `Courses`.
 
+**Key Benefits:**
 
+1. Removes duplicate data (redundancy).
+2. Reduces storage requirements.
+3. Avoids anomalies in data.
+4. Improves database consistency and efficiency.
+5. Simplifies database structure.
 
+---
 
+## **2. Functional Dependency (FD)**
 
+- **Definition:** A relationship between attributes, where the value of one attribute determines the value of another attribute.
+- Represented as: `X -> Y`
+  - **X**: Determinant (left-hand side).
+  - **Y**: Dependent (right-hand side).
 
+**Real-Life Example:**
 
+- In a library:
+  - **BookID -> BookName**: Knowing the `BookID` will determine the `BookName`.
 
+### **Table Example:**
 
+| BookID | BookName      | Author   |
+|--------|---------------|----------|
+| 101    | SQL Basics    | Author A |
+| 102    | DBMS Concepts | Author B |
+| 103    | SQL Basics    | Author A |
 
+Here, `BookID -> BookName`, as BookID uniquely identifies BookName.
 
+---
 
+## **3. Types of Functional Dependencies**
 
+### **1. Trivial Functional Dependency**
+- **Definition:** If the dependent attribute is a subset of the determinant.
+- **Rule:** A -> B is trivial if B ⊆ A.
+- **Example:**
 
+| RollNo | Name |
+|--------|------|
+| 1      | John |
 
+Here, `RollNo -> RollNo` or `RollNo, Name -> Name` is trivial because the dependent attribute (RollNo or Name) is part of the determinant.
 
+### **2. Non-Trivial Functional Dependency**
+- **Definition:** If the dependent attribute is not a subset of the determinant.
+- **Rule:** A -> B is non-trivial if B is not part of A (A ∩ B = NULL).
+- **Example:**
 
+| RollNo | Name |
+|--------|------|
+| 1      | John |
 
+Here, `RollNo -> Name` is non-trivial because Name is not part of RollNo.
 
+---
 
+## **4. Armstrong's Axioms (Rules of FD)**
+Armstrong's axioms are rules used to derive all functional dependencies from a given set of FDs. They are:
 
+### **1. Reflexive Rule**
+- **Definition:** If a set of attributes `A` contains another set of attributes `B`, then `A -> B` holds.
+- **Rule:** If `A ⊇ B`, then `A -> B`.
 
+**Example:**
+| RollNo | Name |
+|--------|------|
+| 1      | John |
+| 2      | Jane |
 
+- If the determinant is `{RollNo, Name}`:
+  - `RollNo, Name -> RollNo` (since RollNo is part of the set).
+  - `RollNo, Name -> Name` (Name is also part of the set).
 
+**Explanation:** The dependent attributes (RollNo or Name) are subsets of the determinant `{RollNo, Name}`, so the functional dependency is **trivial**.
 
+---
 
+### **2. Augmentation Rule**
+- **Definition:** If `A -> B` holds, then adding more attributes `X` to both sides will not violate the dependency.
+- **Rule:** If `A -> B`, then `A, X -> B, X` also holds.
 
+**Example:**
+| RollNo | Name |
+|--------|------|
+| 1      | John |
+| 2      | Jane |
 
+- Assume that `RollNo -> Name`.
+- If we add another attribute `Age`:
+  - `RollNo, Age -> Name, Age` will also hold.
 
+**Explanation:** Augmenting both sides with `Age` does not change the dependency relationship.
 
+---
 
+### **3. Transitivity Rule**
+- **Definition:** If `A -> B` and `B -> C`, then `A -> C`.
+- **Rule:** Transitivity allows chaining functional dependencies.
 
+**Example:**
+Consider the following relationships:
+1. `RollNo -> Dept` (RollNo determines the department).
+2. `Dept -> HOD` (Department determines the Head of Department).
 
+| RollNo | Dept   | HOD       |
+|--------|--------|-----------|
+| 1      | HR     | Mr. Smith |
+| 2      | IT     | Ms. Jane  |
 
+**Transitive Dependency:**
+- From `RollNo -> Dept` and `Dept -> HOD`, we can derive `RollNo -> HOD`.
 
+**Step-by-Step:**
+1. **RollNo -> Dept**: RollNo 1 corresponds to HR.
+2. **Dept -> HOD**: HR corresponds to Mr. Smith.
+3. **RollNo -> HOD**: Therefore, RollNo 1 corresponds to Mr. Smith.
 
+**Final Table:**
+| RollNo | Dept   | HOD       |
+|--------|--------|-----------|
+| 1      | HR     | Mr. Smith |
+| 2      | IT     | Ms. Jane  |
 
+---
 
+## **5. Why Normalization?**
 
+### **Key Reasons:**
+1. **To avoid redundancy:** Prevent duplicate data storage.
+2. **To eliminate anomalies:** Fix insertion, deletion, and update anomalies.
+3. **To improve database performance:** Organize tables efficiently.
+4. **Consistency:** Ensure consistent and accurate data.
+5. **Scalability:** Makes database maintenance easier for large systems.
 
+---
 
+## **6. Types of Anomalies**
 
+Anomalies are issues caused by data redundancy.
 
+### **1. Insertion Anomaly**
+- **Definition:** Inability to insert data without other unnecessary information.
+- **Example:**
 
+| RollNo | Name | Course     |
+|--------|------|------------|
+| 1      | John | SQL Basics |
 
+- You cannot insert a new course unless there is a student to associate it with.
 
+### **2. Deletion Anomaly**
+- **Definition:** Deleting one record unintentionally removes other important data.
+- **Example:**
+If you delete a student who has no courses, you may also lose the course details.
 
+### **3. Update Anomaly**
+- **Definition:** Updating data in multiple rows can lead to inconsistencies.
+- **Example:**
+
+| RollNo | Name | Course     | Teacher   |
+|--------|------|------------|-----------|
+| 1      | John | SQL Basics | Mr. Smith |
+| 2      | Jane | SQL Basics | Mr. Smith |
 
+If the Teacher for `SQL Basics` changes, you need to update multiple rows. If you forget, the database will be inconsistent.
 
+---
+Below is a more cleanly formatted and structured explanation of the normalization forms in Markdown, with improved readability and consistency.
 
+---
 
+## What is Normalization?
 
+**Normalization** is the process of structuring a relational database in a way that reduces data redundancy and improves data integrity. It involves applying a series of rules—called normal forms—to ensure that data is stored efficiently and logically. As you move through each normal form, the data structure typically becomes more organized and easier to maintain.
 
+---
 
+## First Normal Form (1NF)
 
+**Requirements for 1NF:**
 
+1. Every column must store atomic (indivisible) values.
+2. There should be no repeating groups of attributes or arrays within a single column.
+
+In simpler terms, each cell in the table should contain exactly one piece of data. No lists or multiple values should be crammed into one cell.
 
+**Why is this important?**  
+Storing multiple values in a single cell makes searching, sorting, and filtering more complicated. Having one value per cell keeps data management straightforward.
 
+**Example (Not in 1NF):**
+``` 
+| Student_ID | Name       | Subjects                | Grade |
+|------------|------------|-------------------------|-------|
+| 1          | Alice Lee  | Math, English, Science  | A     |
+| 2          | Bob King   | History, Geography      | B     |
+```
+Here, the "Subjects" column has multiple values in one cell.
+
+**Example (Converted to 1NF):**
+```
+| Student_ID | Name       | Subject   | Grade |
+|------------|------------|-----------|-------|
+| 1          | Alice Lee  | Math      | A     |
+| 1          | Alice Lee  | English   | A     |
+| 1          | Alice Lee  | Science   | A     |
+| 2          | Bob King   | History   | B     |
+| 2          | Bob King   | Geography | B     |
+```
+Each row now represents one subject per student, ensuring atomic values.
+
+---
+
+## Second Normal Form (2NF)
+
+**Requirements for 2NF:**
+
+1. The table must already be in 1NF.
+2. All non-key attributes must depend on the entire primary key, not just part of it.  
+   - This is especially relevant if your primary key is a combination of multiple columns (a composite key).
+
+**Why is this important?**  
+If a non-key attribute (a column that isn’t part of the primary key) depends only on part of a composite primary key, you end up with partial dependencies. This often leads to redundancy and potential inconsistencies.
+
+**Example (Not in 2NF):**
+```
+| Order_ID | Product_ID | Product_Name    | Unit_Price |
+|----------|------------|-----------------|------------|
+| 101      | P01        | Chocolate Bar   | 0.99       |
+| 101      | P02        | Chips Bag       | 1.49       |
+| 102      | P01        | Chocolate Bar   | 0.99       |
+| 103      | P03        | Soda Bottle     | 1.99       |
+```
+**Key Point:** Suppose the primary key is (Order_ID, Product_ID).  
+- `Product_Name` and `Unit_Price` actually depend only on `Product_ID`, not on `Order_ID`.  
+- This creates a partial dependency because `Product_Name` and `Unit_Price` should not depend on just part of the key.
 
+**To fix this (Achieve 2NF):**  
+Separate product details into their own table, leaving only the fully key-dependent data in `OrderDetails`.
 
+**Products Table:**
+```
+| Product_ID | Product_Name    | Unit_Price |
+|------------|-----------------|------------|
+| P01        | Chocolate Bar   | 0.99       |
+| P02        | Chips Bag       | 1.49       |
+| P03        | Soda Bottle     | 1.99       |
+```
 
+**OrderDetails Table:**
+```
+| Order_ID | Product_ID |
+|----------|------------|
+| 101      | P01        |
+| 101      | P02        |
+| 102      | P01        |
+| 103      | P03        |
+```
+Now, each non-key attribute in its respective table depends on the whole primary key (or a single-column primary key, in the case of the Products table).
 
+---
+
+## Third Normal Form (3NF)
+
+**Requirements for 3NF:**
+
+1. The table must already be in 2NF.
+2. There should be no transitive dependencies.  
+   - A transitive dependency occurs when a non-key attribute depends on another non-key attribute, instead of directly depending on the primary key.
+
+**Why is this important?**  
+Transitive dependencies can lead to data anomalies and redundant data. By removing them, we ensure that every non-key attribute directly depends on the primary key.
+
+**Example (Not in 3NF):**
+```
+| Employee_ID | Employee_Name | Department_ID | Department_Name |
+|-------------|---------------|---------------|-----------------|
+| E001        | John Smith    | D10           | Marketing       |
+| E002        | Jane Doe      | D20           | Sales           |
+| E003        | Bob Johnson   | D10           | Marketing       |
+```
+**Key Point:**  
+- Primary Key: `Employee_ID`
+- `Department_Name` depends on `Department_ID`, which in turn depends on `Employee_ID`.  
+- This `Employee_ID → Department_ID → Department_Name` chain is a transitive dependency.
+
+**To fix this (Achieve 3NF):**  
+Separate department information into another table.
+
+**Employees Table:**
+```
+| Employee_ID | Employee_Name | Department_ID |
+|-------------|---------------|---------------|
+| E001        | John Smith    | D10           |
+| E002        | Jane Doe      | D20           |
+| E003        | Bob Johnson   | D10           |
+```
+
+**Departments Table:**
+```
+| Department_ID | Department_Name |
+|---------------|-----------------|
+| D10           | Marketing       |
+| D20           | Sales           |
+```
+Now each non-key attribute (like `Department_Name`) is stored in a separate table, eliminating transitive dependencies.
+
+---
+
+## Boyce-Codd Normal Form (BCNF)
+
+**Requirements for BCNF:**
+
+1. The table must already be in 3NF.
+2. For every functional dependency (A → B), A must be a superkey.
+
+**Why is this important?**  
+BCNF is a stronger form of 3NF. It ensures that all functional dependencies use a superkey as the determinant, preventing even subtle anomalies that might be left after 3NF.
+
+**Example (Not in BCNF):**
+If you have a table where a non-superkey attribute functionally determines another attribute, you have a violation of BCNF. In practice, this might require further splitting tables to ensure all determinants are superkeys.
+
+---
+
+## Advantages of Normalization
+
+1. **Minimizes Data Redundancy:**  
+   Data is not duplicated across multiple tables, reducing storage and maintenance efforts.
+   
+2. **Improves Data Consistency:**  
+   With no repeated data, there are fewer chances of inconsistencies or conflicts.
+
+3. **Enhances Data Integrity:**  
+   By having clear constraints and organized data structures, your data remains accurate and reliable.
+
+4. **Better Database Organization:**  
+   A well-structured schema is easier to understand, maintain, and scale over time.
+
+---
+
+## Summary of the Normal Forms
+
+- **1NF:** Ensure each cell holds one value, no repeating groups.
+- **2NF:** Already in 1NF and ensure all non-key attributes depend on the full primary key (no partial dependency).
+- **3NF:** Already in 2NF and ensure no transitive dependencies. Non-key attributes should depend only on the primary key.
+- **BCNF:** Already in 3NF and ensure every functional dependency has a superkey on the left side, offering an even stricter form of normalization.
+
+By following these steps, you can design databases that are more efficient, consistent, and easier to maintain.
+
+---
+
+Below is a more cleanly formatted and structured version of the given content, similar to the previous formatting improvements:
+
+---
+
+## Transactions
+
+1. **Definition:**  
+   A **transaction** is a logical, consistent unit of work performed against a database. It typically consists of one or more SQL statements that are executed in a specific sequence.  
+   
+2. **Importance of Sequence:**  
+   The order in which operations occur in a transaction matters. All operations must be logically related to produce a meaningful, consistent set of changes to the database.
+
+3. **Outcome of a Transaction:**  
+   - If the transaction completes successfully, all changes made to the database during the transaction become permanent.
+   - If any operation fails or encounters an error, the entire transaction is rolled back, undoing all changes made so far.
+
+---
+
+## ACID Properties
+
+To maintain data integrity and ensure reliability, database systems enforce the following **ACID** properties for transactions:
+
+1. **Atomicity:**  
+   - The transaction should be treated as a single unit of work.  
+   - Either all of its operations are successfully completed and reflected in the database, or none are applied (in case of any failure).
+
+2. **Consistency:**  
+   - Any transaction should bring the database from one valid, consistent state to another valid, consistent state.  
+   - All integrity constraints must remain satisfied before and after the transaction.
+
+3. **Isolation:**  
+   - Even when multiple transactions execute concurrently, each one should proceed as if it were executing alone.  
+   - The execution of one transaction should not interfere with the execution of another, ensuring that intermediate states of one transaction are not visible to others.
+
+4. **Durability:**  
+   - Once a transaction is committed, its changes are permanent, even if system failures occur afterward.  
+   - The results of a successful transaction are reliably stored and will survive crashes.
+
+---
+
+## Transaction States
+
+A transaction goes through several states during its lifecycle:
+
+1. **Active State:**  
+   - The initial state of a transaction when it starts executing.  
+   - In this state, the transaction performs all required read and write operations.  
+   - If everything proceeds without error, the transaction moves into the **Partially Committed** state.  
+   - If an error or failure occurs, the transaction moves to the **Failed** state.
+
+2. **Partially Committed State:**  
+   - After completing all its operations, the transaction has modified data in memory buffers.  
+   - If these changes can be successfully written (made permanent) to the database, the transaction transitions to the **Committed** state.  
+   - If a failure occurs during this process, the transaction goes to the **Failed** state.
+
+3. **Committed State:**  
+   - In the committed state, all changes have been successfully saved to the database.  
+   - The transaction is now considered complete, and these changes cannot be rolled back.  
+   - The database is in a new consistent state after the transaction.
+
+4. **Failed State:**  
+   - If the transaction encounters a problem during execution or partial commit, it enters the failed state.  
+   - It is now impossible for the transaction to continue execution from this point.
+
+5. **Aborted State:**  
+   - Once a transaction is in the failed state, all changes made by it (stored in memory buffers) are rolled back (undone), restoring the database to its state before the transaction started.  
+   - After the rollback completes, the transaction enters the aborted state.
+
+6. **Terminated State:**  
+   - A transaction is said to be terminated if it has either committed or aborted.  
+   - At this stage, the transaction is no longer active and cannot be resumed.
+
+---
+
+By understanding these states and the ACID properties, we ensure that database transactions maintain consistency, reliability, and integrity, even in the presence of concurrent operations and potential system failures.
+
+---
