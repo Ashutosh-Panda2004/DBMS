@@ -1186,6 +1186,9 @@ SELECT * FROM Customers WHERE prime_status = 1;
 -- Retrieve customers with Age between 30 and 50
 SELECT * FROM Customers WHERE Age BETWEEN 30 AND 50;
 ```
+will include both 30 and 50 in the result.
+
+The BETWEEN operator in SQL is inclusive. This means that the query retrieves all rows where the Age column value is greater than or equal to 30 and less than or equal to 50.
 
 **Expected Output:**
 ```
