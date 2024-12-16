@@ -3425,6 +3425,56 @@ BCNF is a stronger form of 3NF. It ensures that all functional dependencies use 
 **Example (Not in BCNF):**
 If you have a table where a non-superkey attribute functionally determines another attribute, you have a violation of BCNF. In practice, this might require further splitting tables to ensure all determinants are superkeys.
 
+**Example Scenario:**  
+Imagine we have a relation `R` that stores information about which tutor teaches which course to which student. Let’s say the relation `R` has the following attributes:
+
+```
+R(Student, Course, Tutor)
+```
+
+**Intended meaning:**  
+- A given (Student, Course) pair identifies exactly one Tutor who teaches that course to the student.
+
+**Functional Dependencies:**  
+1. **(Student, Course) → Tutor**  
+   This means that for each student and course combination, there is exactly one tutor.
+
+2. **Tutor → Course**  
+   Suppose we discover that a given tutor only ever teaches one particular course. For instance, if Tutor "T001" always teaches "Math101" and never teaches any other course, then knowing the Tutor determines the Course.
+
+**Checking Keys and Dependencies:**
+
+- **Key for R:**  
+  A natural candidate key for `R` is `(Student, Course)` because each student enrolled in a particular course will have exactly one associated tutor. This combination uniquely identifies each row.
+
+- **Problematic Dependency: `Tutor → Course`:**  
+  In this dependency, `Tutor` is not a key of `R`. The primary key is `(Student, Course)`, but here we have a dependency where `Tutor` alone determines `Course`. Since `Tutor` by itself does not uniquely identify a row in `R` (you need `Student, Course` to do that), this violates the Boyce-Codd Normal Form.
+
+**Why does this violate BCNF?**  
+BCNF states that for every functional dependency `A → B` in a relation, `A` must be a superkey. A superkey is a set of attributes that can uniquely identify all attributes in a row. In this example, `Tutor` is not a superkey of `R`. Therefore, `Tutor → Course` violates BCNF.
+
+**How to Achieve BCNF:**
+
+To fix the violation, we must decompose the relation into two relations where all dependencies have a superkey on the left side:
+
+1. Separate the relationship between Tutor and Course into its own table:
+   ```
+   R1(Tutor, Course)
+   ```
+   Here, `Tutor` can be the primary key of `R1` if each Tutor teaches exactly one Course. Thus, `Tutor → Course` no longer violates BCNF, because `Tutor` is now the key of `R1`.
+
+2. Keep the relationship between Student and Tutor in another table:
+   ```
+   R2(Student, Tutor)
+   ```
+   In `R2`, the key could be `(Student, Tutor)` or `(Student)` depending on your design, and no non-key functional dependencies violate BCNF.
+
+**Result:**
+
+- `R1(Tutor, Course)` satisfies BCNF since `Tutor` is a key that determines `Course`.
+- `R2(Student, Tutor)` satisfies BCNF since `(Student, Tutor)` is a key, and there are no dependencies from a non-key attribute to another attribute.
+
+By decomposing into `R1` and `R2`, we’ve removed the BCNF violation. Each functional dependency now has a superkey on the left side, ensuring that the database design adheres to BCNF.
 ---
 
 ## Advantages of Normalization
