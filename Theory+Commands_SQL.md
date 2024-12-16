@@ -660,6 +660,151 @@ ADD Salary DECIMAL(10,2),
 ADD JoiningDate DATE;
 ```
 
+The `ALTER TABLE` statement in SQL is a powerful tool to modify the structure of an existing table. Beyond adding new columns, here are several other operations you can perform using `ALTER TABLE`:
+
+### 1. **Rename a Column**
+   You can rename an existing column.
+   ```sql
+   ALTER TABLE Employees
+   RENAME COLUMN OldColumnName TO NewColumnName;
+   ```
+
+---
+
+### 2. **Change the Data Type of a Column**
+   Modify the data type or size of an existing column.
+   ```sql
+   ALTER TABLE Employees
+   MODIFY Salary DECIMAL(12,2);
+   ```
+
+---
+
+### 3. **Rename the Table**
+   Rename the table itself.
+   ```sql
+   ALTER TABLE Employees
+   RENAME TO Staff;
+   ```
+
+---
+
+### 4. **Add Constraints**
+   Add constraints like `UNIQUE`, `PRIMARY KEY`, or `FOREIGN KEY` to the table.
+   ```sql
+   -- Add a UNIQUE constraint
+   ALTER TABLE Employees
+   ADD CONSTRAINT UniqueEmail UNIQUE (Email);
+   
+   -- Add a PRIMARY KEY constraint
+   ALTER TABLE Employees
+   ADD PRIMARY KEY (EmployeeID);
+   
+   -- Add a FOREIGN KEY constraint
+   ALTER TABLE Employees
+   ADD CONSTRAINT FK_Department
+   FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID);
+   ```
+
+---
+
+### 5. **Drop a Column**
+   Remove a column from the table.
+   ```sql
+   ALTER TABLE Employees
+   DROP COLUMN JoiningDate;
+   ```
+
+---
+
+### 6. **Drop a Constraint**
+   Remove a constraint, such as a foreign key or unique constraint.
+   ```sql
+   -- Drop a foreign key constraint
+   ALTER TABLE Employees
+   DROP CONSTRAINT FK_Department;
+
+   -- Drop a unique constraint
+   ALTER TABLE Employees
+   DROP CONSTRAINT UniqueEmail;
+   ```
+
+---
+
+### 7. **Set or Remove Default Values**
+   Add or remove default values for a column.
+   ```sql
+   -- Add a default value
+   ALTER TABLE Employees
+   ALTER COLUMN Salary SET DEFAULT 5000;
+
+   -- Remove a default value
+   ALTER TABLE Employees
+   ALTER COLUMN Salary DROP DEFAULT;
+   ```
+
+---
+
+### 8. **Modify Nullability of a Column**
+   Change whether a column allows `NULL` values or not.
+   ```sql
+   -- Make a column NOT NULL
+   ALTER TABLE Employees
+   MODIFY Salary DECIMAL(10,2) NOT NULL;
+   
+   -- Allow NULL values in a column
+   ALTER TABLE Employees
+   MODIFY Salary DECIMAL(10,2) NULL;
+   ```
+
+---
+
+### 9. **Reorganize or Partition Table Data**
+   Depending on the database, you can reorganize data or add partitions (e.g., in MySQL, PostgreSQL, or Oracle).
+   ```sql
+   -- Add a partition to a table (syntax depends on the database)
+   ALTER TABLE Employees
+   PARTITION BY RANGE (Salary) (
+       PARTITION p1 VALUES LESS THAN (10000),
+       PARTITION p2 VALUES LESS THAN (20000),
+       PARTITION p3 VALUES LESS THAN MAXVALUE
+   );
+   ```
+
+---
+
+### 10. **Add or Remove Indexes**
+   Add or drop indexes to optimize queries.
+   ```sql
+   -- Add an index
+   CREATE INDEX idx_salary ON Employees(Salary);
+
+   -- Remove an index
+   DROP INDEX idx_salary;
+   ```
+
+---
+
+### 11. **Enable or Disable Constraints**
+   Temporarily enable or disable constraints, useful for bulk updates.
+   ```sql
+   -- Disable a constraint (syntax varies by database)
+   ALTER TABLE Employees
+   DISABLE CONSTRAINT FK_Department;
+
+   -- Enable the constraint again
+   ALTER TABLE Employees
+   ENABLE CONSTRAINT FK_Department;
+   ```
+
+### 12. **Change Column Order** (If supported by your database)
+   Reorder the columns in a table (not universally supported).
+   ```sql
+   ALTER TABLE Employees
+   MODIFY COLUMN Salary DECIMAL(10,2) AFTER EmployeeName;
+   ```
+
+
 ---
 
 #### **1.3 DROP: Delete the Table**
